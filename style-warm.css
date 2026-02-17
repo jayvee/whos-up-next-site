@@ -1,0 +1,236 @@
+/* ============================================
+   THEME B: "Warm" — amber/orange social vibe
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #2d2016;
+    line-height: 1.6;
+    background: #fef9f3;
+}
+
+/* Nav */
+nav {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #c2570a;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: #8c6e54;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.nav-links a:hover {
+    color: #c2570a;
+}
+
+/* Hero */
+.hero {
+    max-width: 600px;
+    margin: 4rem auto 3rem;
+    padding: 0 2rem;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 1.2rem;
+    letter-spacing: -0.02em;
+    color: #2d2016;
+}
+
+.subtitle {
+    font-size: 1.15rem;
+    color: #6b5744;
+    margin-bottom: 2rem;
+    line-height: 1.7;
+}
+
+.cta-button {
+    display: inline-block;
+    background: #c2570a;
+    color: white;
+    padding: 0.9rem 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.cta-button:hover {
+    background: #a84a08;
+}
+
+/* Screenshots */
+.screenshots {
+    max-width: 900px;
+    margin: 0 auto 4rem;
+    padding: 0 1rem;
+}
+
+.screenshot-scroll {
+    display: flex;
+    gap: 2rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 1rem 1rem 2rem;
+}
+
+.screenshot-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.screenshot {
+    flex: 0 0 auto;
+    scroll-snap-align: center;
+    text-align: center;
+}
+
+.screenshot img {
+    height: 500px;
+    width: auto;
+    border-radius: 24px;
+    box-shadow: 0 8px 30px rgba(120, 60, 0, 0.15);
+}
+
+.screenshot .caption {
+    margin-top: 0.8rem;
+    font-size: 0.9rem;
+    color: #a08a72;
+}
+
+/* Features */
+.features {
+    max-width: 700px;
+    margin: 0 auto 5rem;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+}
+
+.feature h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+    color: #c2570a;
+}
+
+.feature p {
+    color: #6b5744;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Footer */
+footer {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    border-top: 1px solid #e8d9c8;
+    text-align: center;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.footer-links a {
+    color: #8c6e54;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.footer-links a:hover {
+    color: #c2570a;
+}
+
+.copyright {
+    color: #b8a492;
+    font-size: 0.85rem;
+}
+
+/* Legal pages */
+.legal {
+    max-width: 650px;
+    margin: 2rem auto 4rem;
+    padding: 0 2rem;
+}
+
+.legal h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #2d2016;
+}
+
+.legal .updated {
+    color: #b8a492;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+.legal h2 {
+    font-size: 1.2rem;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+    color: #c2570a;
+}
+
+.legal p, .legal li {
+    color: #5a4635;
+    font-size: 0.95rem;
+    margin-bottom: 0.8rem;
+}
+
+.legal ul {
+    padding-left: 1.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.legal a {
+    color: #c2570a;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .features {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .screenshot img {
+        height: 400px;
+    }
+}
