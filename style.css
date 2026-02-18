@@ -85,6 +85,12 @@ nav {
     background: #333;
 }
 
+.cta-disabled {
+    background: #999;
+    cursor: default;
+    pointer-events: none;
+}
+
 /* Screenshots */
 .screenshots {
     max-width: 900px;
