@@ -1,21 +1,21 @@
 # Deploy to Cloudflare Pages
 
-Deploy the static site to Cloudflare Pages using wrangler.
+Deployment is automatic — push to `main` on GitHub and Cloudflare Pages picks it up.
 
 ## Steps
 
-1. Run the deploy command:
+1. Commit your changes
+2. Push to `main`:
    ```
-   npx wrangler pages deploy /Users/jviner/src/whosupnext-site --project-name whosupnext-site --branch main --commit-dirty=true
+   git push origin main
    ```
 
-2. The site will be available at:
+3. The site will auto-deploy to:
    - **Production:** https://whosupnext.today
    - **Pages URL:** https://whosupnext-site.pages.dev
 
 ## Notes
 
 - No build step required — this is a plain static HTML/CSS site
-- Wrangler must be authenticated (`npx wrangler login` if needed)
-- The `--commit-dirty=true` flag suppresses warnings about uncommitted changes
+- No manual Wrangler deploy needed — GitHub integration handles it
 - Custom domain `whosupnext.today` is configured in the Cloudflare dashboard
