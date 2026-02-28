@@ -47,6 +47,13 @@ nav {
     color: #1a1a1a;
 }
 
+/* App icon */
+.app-icon {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 1.5rem;
+}
+
 /* Hero */
 .hero {
     max-width: 700px;
