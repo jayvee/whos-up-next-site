@@ -30,6 +30,17 @@ Two CSS themes are available. Switch by changing the `<link>` href in the HTML f
 
 The privacy and support pages currently reference `style.css`. Update all three HTML files when switching themes.
 
+## Local Development
+
+Use the aigon dev server — do **not** use bare `python3 -m http.server` or similar:
+```
+aigon dev-server start     # starts at http://whosupnext.test
+aigon dev-server stop      # stop when done
+aigon dev-server logs      # view server output
+```
+
+Config is in `.aigon/config.json` (appId: `whosupnext`, basePort: 3500).
+
 ## Deployment
 
 Hosted on **Cloudflare Pages** with GitHub integration — pushing to `main` auto-deploys.
@@ -64,3 +75,14 @@ Who's Up Next? is an iOS app for social groups to manage purchase rotations fair
 - You may freely read files from the iOS app repo at `/Users/jviner/src/whos-up-next/`
 - You may freely create, edit, and delete files in this repo
 - Do not modify files in the iOS app repo from this session
+
+<!-- AIGON_START -->
+## Aigon
+
+This project uses the Aigon development workflow.
+
+- Shared project instructions: `AGENTS.md`
+- Claude-specific notes: `docs/agents/claude.md`
+- Development workflow: `docs/development_workflow.md`
+
+<!-- AIGON_END -->

@@ -1,0 +1,143 @@
+---
+description: Evaluate feature <ID> - code review or comparison
+argument-hint: "<ID>"
+---
+# aigon-feature-eval
+
+Evaluate a feature implementation. Works in both solo mode (code review) and arena mode (comparison).
+
+## Argument Resolution
+
+If no ID is provided, or the ID doesn't match an existing feature:
+1. List all files in `./docs/specs/features/03-in-progress/` and `./docs/specs/features/04-in-evaluation/` matching `feature-*.md`
+2. If a partial ID or name was given, filter to matches
+3. Present the matching features and ask the user to choose one
+
+## Step 1: Run the CLI command
+
+IMPORTANT: You MUST run this command first.
+
+```bash
+aigon feature-eval {{args}}
+```
+
+This will:
+- Move the spec to `04-in-evaluation/` (if not already there)
+- Create an evaluation template at `./docs/specs/features/evaluations/feature-{{args}}-eval.md`
+- Detect mode (solo or arena)
+- Commit the changes
+
+**IMPORTANT:** After the CLI command completes, open the evaluation file in markdown preview mode in a separate window:
+- File: `./docs/specs/features/evaluations/feature-{{args}}-eval.md`
+- Open the file, then use Cursor's command palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run: `Markdown: Open Preview` (or press `Cmd+Shift+V` / `Ctrl+Shift+V`)
+- This will open the markdown preview in a separate window for easy reference while you work
+
+## Step 2: Read the spec
+
+Read the feature spec in `./docs/specs/features/04-in-evaluation/feature-{{args}}-*.md`
+
+## Step 3: Review the implementation(s)
+
+### Solo Mode (Code Review)
+
+Review the single implementation:
+
+1. Read the implementation log: `./docs/specs/features/logs/feature-{{args}}-*-log.md`
+2. Review the code changes: `git diff main...feature-{{args}}-*`
+3. Check if the implementation meets the spec requirements
+4. Verify code quality, testing, documentation, security
+
+### Arena Mode (Comparison)
+
+Review each agent's implementation:
+
+1. For each agent worktree listed:
+   - Read implementation log from the worktree (e.g., `../feature-{{args}}-cc-*/docs/specs/features/logs/feature-{{args}}-cc-*-log.md`)
+   - **Examine the actual code changes** in each worktree
+   - Run `git diff main...HEAD` in each worktree to see all changes
+   - Check spec compliance
+
+2. **Worktree locations:** `../feature-{{args}}-<agent>-*`
+
+> **Tip:** If using Claude as the evaluator, use a different model than the one that implemented to avoid bias.
+
+## Step 4: Write the evaluation
+
+Update `./docs/specs/features/evaluations/feature-{{args}}-eval.md`:
+
+### Solo Mode
+
+Complete the code review checklist:
+- Spec Compliance
+- Code Quality
+- Testing
+- Documentation
+- Security
+
+Add notes on:
+- Strengths
+- Areas for Improvement
+- Approval decision (Approved / Needs Changes)
+
+### Arena Mode
+
+Fill in the evaluation table scoring each implementation on:
+- Code Quality
+- Spec Compliance
+- Performance
+- Maintainability
+
+Document:
+- Strengths & Weaknesses for each agent
+- Your recommendation for the winner
+
+## Step 5: Present evaluation and STOP
+
+### Solo Mode
+
+After completing the evaluation:
+
+1. Present a summary of your review to the user
+2. Highlight strengths and any concerns
+3. State your recommendation (Approved / Needs Changes)
+4. **ASK the user**: "Would you like to proceed with merging this implementation?"
+5. **STOP and WAIT** for the user's decision
+
+**CRITICAL: Do NOT run `feature-done` automatically.**
+
+Once the user approves, tell them to run:
+
+```
+/aigon:feature-done {{args}}
+```
+
+### Arena Mode
+
+After completing the evaluation:
+
+1. Present a summary of your comparison to the user
+2. Show the scores/comparison
+3. State your recommendation clearly (e.g., "Merge cc's implementation")
+4. **Explicitly address cross-pollination:** After naming the winner, you MUST state one of:
+   - **If there are aspects worth adopting:** "Before merging, consider adopting from `<agent>`: `<specific aspect>`" — be concrete about what to take and from which implementation.
+   - **If there is nothing worth adopting:** "The other implementations don't have particular features or aspects worth adopting beyond what the winner already provides."
+   Do NOT skip this step or leave it ambiguous. The user needs a clear, actionable statement.
+5. **ASK the user**: "Which implementation would you like to merge?"
+6. **STOP and WAIT** for the user's decision
+
+**CRITICAL: Do NOT run `feature-done` automatically. The user must explicitly choose the winner.**
+
+Once the user has chosen, tell them to run (from the main repo, not a worktree):
+
+```
+/aigon:feature-done {{args}} <winning-agent>
+```
+
+For example: `/aigon:feature-done {{args}} cc` if Claude's implementation wins.
+
+## Prompt Suggestion
+
+End your response with the suggested next command on its own line. This influences Claude Code's prompt suggestion (grey text). Use the actual ID:
+
+- **Solo mode:** `/aigon:feature-done <ID>`
+- **Arena mode:** `/aigon:feature-done <ID> <winning-agent>`
