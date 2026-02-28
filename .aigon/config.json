@@ -1,5 +1,6 @@
 {
   "appId": "whosupnext",
+  "profile": "web",
   "devProxy": {
     "command": "python3 -m http.server $PORT",
     "healthCheck": "/",
