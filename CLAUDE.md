@@ -32,9 +32,10 @@ The privacy and support pages currently reference `style.css`. Update all three 
 
 ## Deployment
 
-Hosted on **Cloudflare Pages** connected to this GitHub repo. Every push to `main` auto-deploys.
+Hosted on **Cloudflare Pages** with GitHub integration — pushing to `main` auto-deploys.
 - Domain: `whosupnext.today`
 - No build step — plain static HTML/CSS
+- Push to `main` on GitHub triggers automatic deployment
 - Support email: `support@whosupnext.today` (Cloudflare Email Routing → personal Gmail)
 
 ## Key URLs
@@ -42,6 +43,13 @@ Hosted on **Cloudflare Pages** connected to this GitHub repo. Every push to `mai
 - Privacy policy: `https://whosupnext.today/privacy` — referenced in App Store Connect
 - Support: `https://whosupnext.today/support` — referenced in App Store Connect
 - Contact: `support@whosupnext.today`
+
+## Tone & Copy
+
+- Always use positive framing — focus on what the app enables, not what problems it solves
+- Never use words like "argue", "argument", "stop arguing", "no more" or other negative framing
+- Good: "Know exactly whose turn it is" / Bad: "Stop arguing about whose turn it is"
+- Good: "Keep every round fair" / Bad: "No more unfair rounds"
 
 ## App Context
 
