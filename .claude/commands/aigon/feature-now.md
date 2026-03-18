@@ -6,8 +6,8 @@ argument-hint: "<existing-feature-name> OR <feature-description>"
 
 Fast-track a feature from idea to implementation in one step. Works in two modes:
 
-- **Existing feature**: If the name matches a feature in the inbox (`01-inbox/`), runs prioritise → setup (solo) → implement
-- **New feature**: If no inbox match, creates the spec from scratch, sets up a solo branch, and starts implementation
+- **Existing feature**: If the name matches a feature in the inbox (`01-inbox/`), runs prioritise → setup (Drive) → implement
+- **New feature**: If no inbox match, creates the spec from scratch, sets up a Drive branch, and starts implementation
 
 ## Argument Resolution
 
@@ -30,7 +30,7 @@ If multiple inbox features match, present the matches and ask the user to pick o
 
 ## Path A: Fast-track existing feature
 
-The feature already has a spec in the inbox. Prioritise it, set up solo mode, and implement.
+The feature already has a spec in the inbox. Prioritise it, set up Drive mode, and implement.
 
 ### A1: Explore the codebase
 
@@ -44,7 +44,7 @@ aigon feature-prioritise <inbox-name>
 
 This assigns an ID and moves the spec from `01-inbox/` to `02-backlog/`. Note the assigned ID from the output.
 
-### A3: Setup (solo mode)
+### A3: Setup (Drive mode)
 
 ```bash
 aigon feature-setup <ID>
@@ -78,15 +78,17 @@ aigon feature-now {{args}}
 
 This will:
 - Create a feature spec directly in `03-in-progress/` with an assigned ID
-- Create a solo branch (`feature-NN-slug`)
+- Create a Drive branch (`feature-NN-slug`)
 - Create an implementation log
 - Commit everything atomically
 
-Note the feature ID and file paths from the output.
+Note the feature ID and exact file paths from the output.
 
 ### B3: Read and write the spec
 
-Read the created spec file in `./docs/specs/features/03-in-progress/feature-*-{{args}}.md`
+Read the exact spec path printed by the CLI (`Spec: ...`).
+
+Do **not** guess the filename from the raw argument text; `aigon feature-now` slugifies names and may trim punctuation/spacing.
 
 Rewrite the spec sections with content informed by your codebase exploration and the conversation context:
 - **Summary**: Clear one-line description
@@ -149,9 +151,24 @@ Implement the feature according to the spec. Commit with conventional commits (`
 
 ## Step 5: Test
 
-- Start the dev server if needed
 - Run the full test suite and verify all tests pass
-- Ask the user to verify
+
+### Before stopping: set up for manual review
+
+1. Start the dev server (if not already running):
+   ```bash
+   aigon dev-server start
+   ```
+2. Open it in the browser:
+   ```bash
+   aigon dev-server open
+   ```
+3. Generate a **Manual Testing Checklist**: re-read the spec Acceptance Criteria and write a numbered list of concrete, human-executable steps to verify each one (e.g. "Navigate to /settings → fill in the form → click Save → verify the success message appears"). Present the checklist in your response before stopping.
+
+**Signal that you are waiting for the user:**
+```bash
+aigon agent-status waiting
+```
 
 **STOP and WAIT for user confirmation before proceeding** — do NOT continue until the user confirms testing is complete.
 
@@ -168,7 +185,7 @@ Commit the log file.
 
 ## Step 7: STOP — Implementation complete
 
-**CRITICAL: Do NOT proceed to feature-done automatically.**
+**CRITICAL: Do NOT proceed to feature-close automatically.**
 
 Tell the user: "Implementation complete. Ready for your review."
 
@@ -176,6 +193,6 @@ Tell the user: "Implementation complete. Ready for your review."
 - Review the code changes
 - Test the feature themselves
 - Optionally run `/aigon:feature-eval` for code review
-- Approve with `/aigon:feature-done`
+- Approve with `/aigon:feature-close`
 
 **This implementation session is complete.**

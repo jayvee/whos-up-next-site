@@ -9,5 +9,19 @@
       "Bash(sudo:*)",
       "Bash(su:*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "aigon check-version",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
   }
 }

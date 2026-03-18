@@ -25,23 +25,23 @@ This assigns an ID to the feature and moves it from `01-inbox/` to `02-backlog/`
 
 Choose your mode:
 
-**Solo (branch)** — work in the current repo:
+**Drive (branch)** — work in the current repo:
 ```
 /aigon:feature-setup <ID>
 ```
 
-**Solo (worktree)** — isolated worktree for parallel development:
+**Drive (worktree)** — isolated worktree for parallel development:
 ```
 /aigon:feature-setup <ID> <agent>
 ```
 
-**Arena** — multiple agents compete on the same feature:
+**Fleet** — multiple agents compete on the same feature:
 ```
 /aigon:feature-setup <ID> <agent1> <agent2> [agent3...]
 ```
 
-Example solo worktree: `/aigon:feature-setup 55 cc`
-Example arena: `/aigon:feature-setup 55 cc gg cx cu`
+Example Drive worktree: `/aigon:feature-setup 55 cc`
+Example Fleet: `/aigon:feature-setup 55 cc gg cx cu`
 
 ## Prompt Suggestion
 

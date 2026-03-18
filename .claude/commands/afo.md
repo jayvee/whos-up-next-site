@@ -1,21 +1,20 @@
 ---
-description: Open worktree in terminal with agent CLI
-argument-hint: "[ID] [agent]"
-disable-model-invocation: true
+description: Open feature worktree in terminal and start agent (shortcut for feature-open)
+argument-hint: "<ID> [agent] [--all] [--terminal=<type>]"
 ---
-# worktree-open
+# feature-open
 
-Open a worktree in Warp terminal and automatically run the AI agent with `/aigon:feature-implement`.
+Open a feature worktree in terminal and automatically start the AI agent with `/aigon:feature-do`.
 
 ## Usage
 
 ```
-/aigon:worktree-open [feature-id] [agent-code]
+/aigon:feature-open [feature-id] [agent-code]
 ```
 
-- `/aigon:worktree-open` — open the most recently created worktree
-- `/aigon:worktree-open 77` — open any worktree for feature 77
-- `/aigon:worktree-open 77 cx` — open specifically the cx (Codex) worktree for feature 77
+- `/aigon:feature-open` — open the most recently created worktree
+- `/aigon:feature-open 77` — open any worktree for feature 77
+- `/aigon:feature-open 77 cx` — open specifically the cx (Codex) worktree for feature 77
 
 ## Agent Mappings
 
@@ -42,14 +41,14 @@ When an agent asks for permission, here's how to quickly allow:
 ## Step 1: Run the CLI command
 
 ```bash
-aigon worktree-open {{args}}
+aigon feature-open {{args}}
 ```
 
 This will:
 1. Find the matching worktree
 2. Create a Warp launch configuration
 3. Open Warp with the worktree directory
-4. Auto-run the agent CLI with `/aigon:feature-implement <ID>`
+4. Auto-run the agent CLI with `/aigon:feature-do <ID>`
 
 ## Step 2: Confirm to user
 

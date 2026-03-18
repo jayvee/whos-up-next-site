@@ -7,10 +7,12 @@ Wrap up implementation in the current worktree or branch: commit all changes, wr
 
 **Use this after testing is complete** — replaces manually asking "commit your changes and write up your log".
 
+**Options:** `--no-exit` — keep the agent session open after submitting (default: auto-exit in Fleet mode).
+
 ## Step 1: Detect feature context
 
 ```bash
-aigon feature-implement --info 2>/dev/null || true
+aigon feature-do --info 2>/dev/null || true
 ```
 
 If that fails, detect from the current branch name:
@@ -20,7 +22,12 @@ git branch --show-current
 
 Extract the feature ID and agent code from the branch name (pattern: `feature-<ID>-<agent>-<description>`).
 
+## Step 2: Stop the dev server
 
+If a dev server is running in this session, stop it now:
+```bash
+aigon dev-server stop 2>/dev/null || true
+```
 
 ## Commit implementation changes
 
@@ -40,7 +47,7 @@ If there are no uncommitted changes, skip this step (changes may already be comm
 ## Update the implementation log
 
 Find the log file:
-- Solo mode: `./docs/specs/features/logs/feature-<ID>-*-log.md`
+- Drive mode: `./docs/specs/features/logs/feature-<ID>-*-log.md`
 - Worktree mode: `./docs/specs/features/logs/feature-<ID>-<agent>-*-log.md`
 
 Update it with a thorough writeup:
@@ -57,10 +64,21 @@ Update it with a thorough writeup:
 - Any trade-offs or alternatives considered
 - Issues encountered and how they were resolved
 
-**Then commit the log file:**
+**Commit the log writeup:**
 ```bash
 git add docs/specs/features/logs/
 git commit -m "docs: update implementation log for feature <ID>"
+```
+
+**Signal that implementation is submitted (updates the log file frontmatter):**
+```bash
+aigon agent-status submitted
+```
+
+**Commit the status update immediately:**
+```bash
+git add docs/specs/features/logs/
+git commit -m "docs: mark feature <ID> submitted"
 ```
 
 ## Signal completion
@@ -74,7 +92,7 @@ Replace `<ID>` with the actual feature ID (padded with leading zero if needed, e
 
 **Then tell the user based on the mode:**
 
-**If 2+ worktrees exist (Arena Mode):**
+**If 2+ worktrees exist (Fleet Mode):**
 
 > Implementation submitted ✅
 >
@@ -82,18 +100,31 @@ Replace `<ID>` with the actual feature ID (padded with leading zero if needed, e
 >
 > **Next step for you:** Switch back to the main repo session and run `/aigon:feature-eval <ID>` from there to compare all implementations.
 
-**If only 1 worktree exists (Solo Worktree Mode):**
+**If only 1 worktree exists (Drive Worktree Mode):**
 
 > Implementation submitted ✅
 >
 > Changes committed and log written.
 >
-> **Next step for you:** Switch back to the main repo session and run `/aigon:feature-done <ID>` to merge your implementation.
+> **Next step for you:** Switch back to the main repo session and run `/aigon:feature-close <ID>` to merge your implementation.
 
 **STOP here. Do NOT:**
-- Run `aigon feature-done` from this worktree
+- Run `aigon feature-close` from this worktree
 - Run `aigon feature-eval` from this worktree
 - Push to remote
 - Start any new work
 
-**This session is complete. Do not suggest any follow-up commands.**
+## Exit session
+
+**Unless the user passed `--no-exit`**, close this agent session by killing the tmux pane. This is safe because all work has been committed.
+
+```bash
+# Brief delay so the completion message is visible, then exit the tmux session
+(sleep 3 && tmux kill-session) &>/dev/null &
+```
+
+Run this command immediately after outputting the completion message above. Do not wait for user input.
+
+**If `--no-exit` was passed**, skip the exit command and instead display:
+
+> **This session is complete. Do not suggest any follow-up commands.**

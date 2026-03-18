@@ -1,10 +1,10 @@
 ---
 description: Evaluate feature <ID> - code review or comparison
-argument-hint: "<ID>"
+argument-hint: "<ID> [--allow-same-model-judge] [--force]"
 ---
 # aigon-feature-eval
 
-Evaluate a feature implementation. Works in both solo mode (code review) and arena mode (comparison).
+Evaluate a feature implementation. Works in both Drive mode (code review) and Fleet mode (comparison).
 
 ## Argument Resolution
 
@@ -21,10 +21,17 @@ IMPORTANT: You MUST run this command first.
 aigon feature-eval {{args}}
 ```
 
+Optional overrides:
+
+```bash
+aigon feature-eval {{args}} --allow-same-model-judge
+```
+
 This will:
 - Move the spec to `04-in-evaluation/` (if not already there)
 - Create an evaluation template at `./docs/specs/features/evaluations/feature-{{args}}-eval.md`
-- Detect mode (solo or arena)
+- Detect mode (Drive or Fleet)
+- Warn if the evaluator shares a provider family with the implementer (same-family bias detection)
 - Commit the changes
 
 **IMPORTANT:** After the CLI command completes, open the evaluation file in markdown preview mode in a separate window:
@@ -38,7 +45,7 @@ Read the feature spec in `./docs/specs/features/04-in-evaluation/feature-{{args}
 
 ## Step 3: Review the implementation(s)
 
-### Solo Mode (Code Review)
+### Drive Mode (Code Review)
 
 Review the single implementation:
 
@@ -47,7 +54,7 @@ Review the single implementation:
 3. Check if the implementation meets the spec requirements
 4. Verify code quality, testing, documentation, security
 
-### Arena Mode (Comparison)
+### Fleet Mode (Comparison)
 
 Review each agent's implementation:
 
@@ -59,13 +66,13 @@ Review each agent's implementation:
 
 2. **Worktree locations:** `../feature-{{args}}-<agent>-*`
 
-> **Tip:** If using Claude as the evaluator, use a different model than the one that implemented to avoid bias.
+> **Bias guard:** `feature-eval` detects same-family evaluation and warns automatically. Pass `--allow-same-model-judge` to suppress if intentional.
 
 ## Step 4: Write the evaluation
 
 Update `./docs/specs/features/evaluations/feature-{{args}}-eval.md`:
 
-### Solo Mode
+### Drive Mode
 
 Complete the code review checklist:
 - Spec Compliance
@@ -79,7 +86,7 @@ Add notes on:
 - Areas for Improvement
 - Approval decision (Approved / Needs Changes)
 
-### Arena Mode
+### Fleet Mode
 
 Fill in the evaluation table scoring each implementation on:
 - Code Quality
@@ -87,13 +94,26 @@ Fill in the evaluation table scoring each implementation on:
 - Performance
 - Maintainability
 
+Use this exact table format with Unicode box-drawing characters throughout (no plain `|` pipes):
+
+```
+  ┌────────┬───────┬───────┬──────────┬───────┐
+  │ Agent  │ Lines │ Tests │ Coverage │ Score │
+  ├────────┼───────┼───────┼──────────┼───────┤
+  │ cc     │   94  │  8/8  │   91%    │ 36/40 │
+  │ cx     │   71  │  8/8  │   88%    │ 34/40 │
+  └────────┴───────┴───────┴──────────┴───────┘
+```
+
+Use `│` for all column separators, `─` for horizontal lines, and the correct corner/junction characters. Align values within columns.
+
 Document:
 - Strengths & Weaknesses for each agent
 - Your recommendation for the winner
 
 ## Step 5: Present evaluation and STOP
 
-### Solo Mode
+### Drive Mode
 
 After completing the evaluation:
 
@@ -103,15 +123,15 @@ After completing the evaluation:
 4. **ASK the user**: "Would you like to proceed with merging this implementation?"
 5. **STOP and WAIT** for the user's decision
 
-**CRITICAL: Do NOT run `feature-done` automatically.**
+**CRITICAL: Do NOT run `feature-close` automatically.**
 
 Once the user approves, tell them to run:
 
 ```
-/aigon:feature-done {{args}}
+/aigon:feature-close {{args}}
 ```
 
-### Arena Mode
+### Fleet Mode
 
 After completing the evaluation:
 
@@ -125,19 +145,19 @@ After completing the evaluation:
 5. **ASK the user**: "Which implementation would you like to merge?"
 6. **STOP and WAIT** for the user's decision
 
-**CRITICAL: Do NOT run `feature-done` automatically. The user must explicitly choose the winner.**
+**CRITICAL: Do NOT run `feature-close` automatically. The user must explicitly choose the winner.**
 
 Once the user has chosen, tell them to run (from the main repo, not a worktree):
 
 ```
-/aigon:feature-done {{args}} <winning-agent>
+/aigon:feature-close {{args}} <winning-agent>
 ```
 
-For example: `/aigon:feature-done {{args}} cc` if Claude's implementation wins.
+For example: `/aigon:feature-close {{args}} cc` if Claude's implementation wins.
 
 ## Prompt Suggestion
 
 End your response with the suggested next command on its own line. This influences Claude Code's prompt suggestion (grey text). Use the actual ID:
 
-- **Solo mode:** `/aigon:feature-done <ID>`
-- **Arena mode:** `/aigon:feature-done <ID> <winning-agent>`
+- **Drive mode:** `/aigon:feature-close <ID>`
+- **Fleet mode:** `/aigon:feature-close <ID> <winning-agent>`

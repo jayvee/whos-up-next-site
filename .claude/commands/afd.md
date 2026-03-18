@@ -1,141 +1,247 @@
 ---
-description: Complete feature <ID> [agent] [--adopt] - merges branch, cleans up, optionally adopts from losers (shortcut for feature-done)
-argument-hint: "<ID> [agent] [--adopt <agents...|all>]"
-disable-model-invocation: true
+description: Do feature <ID> - works in both Drive and Fleet modes (shortcut for feature-do)
+argument-hint: "<ID> [--agent=<cc|gg|cx|cu>] [--autonomous] [--max-iterations=N] [--auto-submit] [--no-auto-submit] [--dry-run]"
 ---
-# aigon-feature-done
+# aigon-feature-do
 
-Complete a feature by merging the implementation and cleaning up.
+Implement a feature. Works in Drive mode (branch), Drive mode (worktree) (parallel development), and Fleet mode (competition).
+
+**IMPORTANT:** Run `/aigon:feature-setup <ID>` first to prepare your workspace.
 
 ## Argument Resolution
 
-If no ID is provided, or the ID doesn't match an existing feature:
-1. List all files in `./docs/specs/features/03-in-progress/` and `./docs/specs/features/04-in-evaluation/` matching `feature-*.md`
+If no ID is provided, or the ID doesn't match an existing feature in progress:
+1. List all files in `./docs/specs/features/03-in-progress/` matching `feature-*.md`
 2. If a partial ID or name was given, filter to matches
 3. Present the matching features and ask the user to choose one
 
-## Usage
+## Step 1: Run the CLI command
 
-### Solo mode (branch or worktree)
-If you used `feature-setup {{args}}` or `feature-setup {{args}} <agent>`:
+This command detects whether you're in Drive or Fleet mode and provides guidance.
+
 ```bash
-aigon feature-done {{args}}
+aigon feature-do {{args}}
 ```
-The command auto-detects whether the feature uses a branch or a solo worktree.
 
-### Arena mode
-If you used `feature-setup {{args}} cc gg cx cu`:
+To run in **Autopilot mode** — autonomous retry loop where a fresh agent session is spawned each iteration until validation passes:
+
 ```bash
-aigon feature-done {{args}} <winning-agent>
+aigon feature-do {{args}} --autonomous
 ```
 
-Example: `aigon feature-done {{args}} cc` to merge Claude's implementation
+Optional flags: `--max-iterations=N` (default 5) · `--agent=<id>` · `--dry-run`
 
-### Arena mode with adoption
-Merge the winner and print diffs from losing agents for selective adoption:
+> **What is autonomous mode?** The autonomous technique runs an agent in a loop: implement → validate → if fail, repeat with fresh context until success or max iterations. Named after the [original pattern by Geoffrey Huntley](https://ghuntley.com/ralph/) and [similar implementations](https://github.com/minicodemonkey/chief) that treat autonomous iteration as the primary dev loop. Add a `## Validation` section to your feature spec to define feature-specific checks alongside project-level validation.
+
+The command will:
+- Detect your mode: Drive (branch), Drive worktree, or Fleet
+- Display the spec location and log file
+- Show implementation steps
+
+**If the CLI fails with "Could not find feature in in-progress"** and you're in a worktree: the spec move was likely not committed before the worktree was created. Fix by running these commands from the worktree:
 ```bash
-aigon feature-done {{args}} <winning-agent> --adopt <agents...|all>
+# Bring the spec into this worktree from the main branch
+git checkout main -- docs/specs/features/03-in-progress/
+git commit -m "chore: sync spec to worktree branch"
+```
+Then re-run `/aigon:feature-do {{args}}`.
+
+## Step 2: Read the spec
+
+Read the spec in `./docs/specs/features/03-in-progress/feature-{{args}}-*.md`
+
+## Step 2.5: Consider Plan Mode
+
+For non-trivial features, **use plan mode** before implementation to explore the codebase and design your approach:
+
+**Use plan mode when**:
+- Feature touches 3+ files
+- Architectural decisions required (choosing between patterns, libraries, approaches)
+- Multiple valid implementation approaches exist
+- Complex acceptance criteria requiring coordination across components
+- Unclear how to integrate with existing codebase
+
+**Skip plan mode for**:
+- **Worktree or Fleet mode** — there is no interactive user to approve plans; implement directly
+- Single-file changes with obvious implementation
+- Clear, detailed specifications with one straightforward approach
+- Simple bug fixes or small tweaks
+- Very specific user instructions with implementation details provided
+
+**In plan mode, you should**:
+- Explore the codebase thoroughly (Glob, Grep, Read existing files)
+- Understand existing patterns and conventions
+- Design your implementation approach
+- Identify files that need changes
+- Present your plan for user approval
+- Exit plan mode when ready to implement
+
+## Step 3: Implement and break into tasks from acceptance criteria
+
+**Signal that you are starting implementation:**
+```bash
+aigon agent-status implementing
 ```
 
-Examples:
-- `aigon feature-done {{args}} cc --adopt gg cu` — adopt from specific agents
-- `aigon feature-done {{args}} cc --adopt all` — adopt from all losing agents
+Before writing code, create a task for each **Acceptance Criterion** from the spec. This gives the user visibility into implementation progress via the task list.
 
-## What happens
+Then implement the feature according to the spec. Mark tasks as in-progress when you start working on them, and completed when satisfied. If you discover sub-tasks during implementation, add them to the list.
 
-### Solo Mode
+### Agent Teams (optional)
 
-1. Pushes the feature branch to origin (to save work remotely)
-2. Switches to main/master branch
-3. Merges the feature branch with `--no-ff`
-4. Moves spec to `05-done/`
-5. Moves implementation log to `logs/selected/`
-6. Deletes the local feature branch
-7. Commits the spec and log moves
+For features with multiple independent acceptance criteria spanning different areas (e.g., frontend, backend, tests), consider creating an agent team. Assign each teammate a distinct slice of the implementation with clear file ownership boundaries to avoid conflicts. Use delegate mode and require plan approval before teammates begin implementing. Reference: https://code.claude.com/docs/en/agent-teams
 
-### Arena Mode (without --adopt)
 
-1. Pushes the winning agent's branch to origin
-2. Switches to main/master branch
-3. Merges the winning agent's branch with `--no-ff`
-4. Moves spec to `05-done/`
-5. Organizes logs:
-   - Winning agent's log → `logs/selected/`
-   - Other agents' logs → `logs/alternatives/`
-6. Removes the winning agent's worktree
-7. Deletes the winning agent's local branch
-8. Commits the changes
-9. Shows cleanup options for remaining worktrees/branches
+**For worktree modes (Drive worktree or Fleet):** Use relative paths throughout implementation. Maintain the worktree directory as your working directory.
 
-### Arena Mode with Adoption
+## Step 3.5: Install dependencies (worktree only)
 
-**CRITICAL SEQUENCING: When `--adopt` is used, do NOT delete any worktrees or branches for the adopted-from agents until adoption is complete.** The adopted agents' worktrees must remain accessible so you can read their code and cherry-pick changes.
+**Worktrees do not share `node_modules/` with the main repo.** Before running or testing, check if dependencies need to be installed:
 
-**Order of operations:**
-
-1. Push the winning agent's branch to origin
-2. Switch to main/master branch
-3. Merge the winning agent's branch with `--no-ff`
-4. Move spec to `05-done/`, organize logs, commit
-5. Remove only the **winning agent's** worktree and branch (its code is now on main)
-6. **KEEP all adopted-from agents' worktrees and branches alive**
-7. Review the evaluation's cross-pollination recommendations (in `docs/specs/features/evaluations/`)
-8. **Read the actual source files** from the adopted agents' worktrees — do NOT rely only on diffs
-9. Apply selected changes to main (cherry-pick files, copy code, adapt patterns)
-10. Run tests to ensure adopted changes work with the winner's implementation
-11. Commit the adopted improvements as a separate commit (e.g., `feat: adopt cc's ARIA patterns and layout constants`)
-12. **Only after adoption is committed**, clean up the remaining worktrees and branches
-
-**What to review and adopt:**
-- Extra tests and edge case coverage
-- Better error handling or validation
-- Accessibility improvements (ARIA roles, keyboard navigation)
-- Layout/styling refinements
-- Documentation improvements (comments, docstrings)
-- Edge case handling the winner missed
-- Performance optimizations
-
-**What NOT to adopt:**
-- Architectural changes that conflict with the winner's approach
-- Duplicate implementations of the same logic
-- Code that contradicts the winner's design decisions
-
-### Cleanup after Arena
-
-After merging the winner (and completing adoption if applicable), clean up remaining worktrees:
-
-```
-/aigon:feature-cleanup {{args}}         # Delete locally
-/aigon:feature-cleanup {{args}} --push  # Push to remote first
+```bash
+# Check if node_modules exists
+test -d node_modules && echo "Dependencies installed" || echo "Need to install dependencies"
 ```
 
-Use `--push` if you want to preserve the alternative implementations on the remote repository.
+If missing, install them using the project's package manager:
+```bash
+# Detect and run the appropriate install command
+if [ -f "pnpm-lock.yaml" ]; then pnpm install
+elif [ -f "yarn.lock" ]; then yarn install
+elif [ -f "bun.lockb" ]; then bun install
+elif [ -f "package-lock.json" ]; then npm install
+elif [ -f "package.json" ]; then npm install
+fi
+```
 
-## Important Notes
+> **Project-specific steps?** Check your root instructions file (e.g. AGENTS.md) for dependency commands.
 
-- **Solo worktree**: The agent is auto-detected — no need to specify it
-- **Arena mode**: The agent parameter is REQUIRED (e.g., `cc`, `gg`, `cx`, `cu`)
-- **`--adopt`**: Only available in arena mode — requires a winning agent
-- **Do NOT run from a worktree**: Always run from the main repository
-- The command uses `--no-ff` merge to preserve feature history
-- Alternative implementations are preserved in `logs/alternatives/` for future reference
+## Step 3.8: Write tests for your implementation
 
-## Suggest Next Action
+**You MUST write tests for any new functionality you implement.** This is not optional. Test coverage is a key evaluation criterion in Fleet mode and a merge requirement.
 
-After the command completes, check the pipeline and suggest the most useful next step:
+- **Write unit tests** for new modules, functions, resolvers, and utilities
+- **Write integration tests** for new UI components (render tests, interaction tests)
+- **Add test cases** to existing test files when extending existing modules
+- **Follow existing test patterns** — look at nearby `*.test.js`, `*.test.jsx`, or `*.test.ts` files for conventions (test runner, assertion style, mocking approach)
+- **Run the test suite** to verify all tests pass (both new and existing)
 
-1. If `--adopt` was used and diffs were printed, suggest the agent **review the diffs above and selectively apply valuable improvements** before cleanup. This is the highest priority next action.
+> **Project-specific steps?** Check your root instructions file (e.g. AGENTS.md) for test commands and conventions.
 
-2. If the feature used **arena mode** (without `--adopt`) and has remaining worktrees, suggest cleanup first:
-   `/aigon:feature-cleanup <ID>`
+## Step 4: Test your changes
 
-3. Otherwise, check the pipeline:
-   - List files in `./docs/specs/features/02-backlog/` matching `feature-*.md`
-   - If features exist in **backlog**: suggest setting up the next one — `/aigon:feature-setup <next-ID>`
-   - If backlog is empty, list files in `./docs/specs/features/01-inbox/` matching `feature-*.md`
-   - If features exist in **inbox**: suggest prioritising — `/aigon:feature-prioritise`
-   - If both are empty: let the user know the pipeline is clear
+### Drive Mode (branch)
+- Start the dev server if needed
+- Run the full test suite and verify all tests pass
+- Ask the user to verify
+
+### Worktree Mode (Drive worktree or Fleet)
+- **NEVER run `npm run dev` or `next dev` directly** — this bypasses port allocation and will bind to port 3000 (the main app)
+- Run `aigon dev-server start` — allocates your agent's unique port, starts the server, registers with the proxy, and waits for healthy
+- Use the URL printed by the command (e.g. `http://cx-121.myapp.test`) — never use `http://localhost:3000`
+- Use `aigon dev-server logs` to check startup output if anything seems wrong
+- Ask the user to verify
+
+> **Project-specific steps?** Check your root instructions file (e.g. AGENTS.md) for test commands.
+
+
+
+### Before stopping: set up for manual review
+
+1. Start the dev server (if not already running):
+   ```bash
+   aigon dev-server start
+   ```
+2. Open it in the browser:
+   ```bash
+   aigon dev-server open
+   ```
+3. Generate a **Manual Testing Checklist**: re-read the spec Acceptance Criteria and write a numbered list of concrete, human-executable steps to verify each one (e.g. "Navigate to /settings → fill in the form → click Save → verify the success message appears"). Present the checklist in your response before stopping.
+
+## Step 5: Commit your implementation
+
+**IMPORTANT: You MUST commit before proceeding.**
+
+**Before committing, verify your working directory:**
+```bash
+pwd
+```
+
+Expected output:
+- Drive mode (branch): Main repository path
+- Worktree mode: `.../feature-{{args}}-<agent>-<description>`
+
+**Now commit your changes:**
+1. Stage and commit your code changes using conventional commits (`feat:`, `fix:`, `chore:`)
+2. Verify the commit was successful by running `git log --oneline -1`
+
+## Step 6: Update and commit the log
+
+Find your implementation log:
+- Drive mode (branch): `./docs/specs/features/logs/feature-{{args}}-*-log.md`
+- Worktree mode: `./docs/specs/features/logs/feature-{{args}}-<agent>-*-log.md`
+
+Update it with:
+- Key decisions made during implementation
+- Summary of the conversation between you and the user
+- Any issues encountered and how they were resolved
+- Your approach and rationale (for Fleet mode, helps evaluator compare)
+
+**Then commit the log file.**
+
+## Step 7: Signal completion
+
+**THIS IS THE FINAL STEP. YOU MUST COMPLETE IT.**
+
+After committing your code (Step 5) and log (Step 6), you MUST signal your status. Run this command now:
+
+```bash
+test -f .aigon/auto-submit && echo "AUTO_SUBMIT" || echo "MANUAL"
+```
+
+Then follow the matching section below.
+
+---
+
+### AUTO_SUBMIT → run `aigon agent-status submitted` and exit
+
+You are running autonomously. Run this command immediately:
+```bash
+aigon agent-status submitted
+```
+This session is complete. Do not suggest follow-up commands.
+
+---
+
+### MANUAL + Drive Mode (branch) → run `aigon agent-status waiting` and stop
+
+You are on a branch in the main repo. Run this command immediately:
+```bash
+aigon agent-status waiting
+```
+Then tell the user: "Implementation complete. Ready for your review."
+
+**STOP and WAIT.** Do not proceed until the user responds. Do NOT run feature-close.
+
+---
+
+### MANUAL + Worktree (Drive worktree or Fleet) → run `aigon agent-status submitted` and stop
+
+You are in a worktree. Run this command immediately:
+```bash
+aigon agent-status submitted
+```
+Then tell the user: "Implementation complete and submitted."
+
+**STOP.** Do NOT run feature-close — that must be done from the main repo.
+
+---
+
+**If you are unsure which section applies, run `aigon agent-status waiting` — it is always safe.**
 
 ## Prompt Suggestion
 
-End your response with the suggested next command on its own line. This influences Claude Code's prompt suggestion (grey text). Use the actual ID/name from the pipeline check above.
+**IMPORTANT:** End your final response with the suggested next command on its own line. This tells the user what to run next and enables prompt suggestions. Use the actual feature ID:
+
+- **Drive mode:** `/aigon:feature-close <ID>`
+- **Fleet / worktree:** `/aigon:feature-submit`
