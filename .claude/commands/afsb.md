@@ -1,5 +1,5 @@
 ---
-description: Submit feature implementation - commit changes, write log, signal done
+description: Submit feature implementation - commit changes, write log, signal done (shortcut for feature-submit)
 ---
 # aigon-feature-submit
 

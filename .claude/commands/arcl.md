@@ -7,29 +7,25 @@ argument-hint: "<ID>"
 Run this command followed by the Research ID.
 
 ```bash
-aigon research-close {{args}} [--complete]
+aigon research-close {{args}}
 ```
 
 ## Argument Resolution
 
-If no ID is provided, or the ID doesn't match an existing topic in progress:
-1. List all files in `./docs/specs/research-topics/03-in-progress/` matching `research-*.md`
+If no ID is provided, or the ID doesn't match an existing topic in evaluation or in progress:
+1. List all files in `./docs/specs/research-topics/04-in-evaluation/` and `./docs/specs/research-topics/03-in-progress/` matching `research-*.md`
 2. If a partial ID or name was given, filter to matches
 3. Present the matching topics and ask the user to choose one
 
-This moves the research topic from `03-in-progress/` to `04-done/`.
+This moves the research topic from `04-in-evaluation/` (or `03-in-progress/`) to `05-done/`.
 
 ## Usage
 
-**Drive mode:** Run directly after completing your research findings.
+**After evaluation:** Run after `research-eval` has completed — the standard parallel-work flow.
 
-**Fleet mode:**
-- First run `/aigon-research-synthesize {ID}` to compare all agents' findings and select features
-- The synthesize command will run `research-close --complete` automatically when finished
+**Drive mode:** Run after `research-do` is complete and the research pass is ready to finish.
 
-## Options
-
-- `--complete` - Move directly to done (required for Fleet mode after synthesis)
+**Skipping eval:** Closing from in-progress (without running eval) will show a warning but proceed. This is most relevant for single-agent research, just as feature close can skip comparative evaluation when there is nothing to compare.
 
 
 ARGUMENTS: {{args}}

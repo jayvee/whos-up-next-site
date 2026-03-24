@@ -6,7 +6,7 @@ argument-hint: "<ID> [--agent=<cc|gg|cx|cu>] [--autonomous] [--max-iterations=N]
 
 Implement a feature. Works in Drive mode (branch), Drive mode (worktree) (parallel development), and Fleet mode (competition).
 
-**IMPORTANT:** Run `/aigon:feature-setup <ID>` first to prepare your workspace.
+**IMPORTANT:** Run `/aigon:feature-start <ID>` first to prepare your workspace.
 
 ## Argument Resolution
 
@@ -78,7 +78,7 @@ For non-trivial features, **use plan mode** before implementation to explore the
 
 ## Step 3: Implement and break into tasks from acceptance criteria
 
-**Signal that you are starting implementation:**
+**Signal that you are starting implementation (you MUST run this shell command — do NOT write .aigon/state/ files directly):**
 ```bash
 aigon agent-status implementing
 ```
@@ -130,15 +130,20 @@ fi
 
 ## Step 4: Test your changes
 
+The **dev server** runs a local development server of this project's source code (e.g. Next.js, Vite, etc.) so you can verify your changes work correctly — either by running automated tests against it or by providing the user a URL for manual review.
+
+**IMPORTANT:** `aigon dev-server start` starts the **project's** dev server (e.g. `npm run dev`) with managed port allocation. It is NOT `aigon dashboard` — the dashboard is Aigon's centralised management UI across all repositories and has nothing to do with previewing project changes. Never run `aigon dashboard` to test your work.
+
 ### Drive Mode (branch)
-- Start the dev server if needed
+- Start the dev server: `aigon dev-server start` (NEVER run `npm run dev` or `next dev` directly — it bypasses port allocation and causes port conflicts)
+- Use the URL printed by the command to access the app
 - Run the full test suite and verify all tests pass
 - Ask the user to verify
 
 ### Worktree Mode (Drive worktree or Fleet)
-- **NEVER run `npm run dev` or `next dev` directly** — this bypasses port allocation and will bind to port 3000 (the main app)
+- **NEVER run `npm run dev` or `next dev` directly** — this bypasses port allocation and will cause port conflicts
 - Run `aigon dev-server start` — allocates your agent's unique port, starts the server, registers with the proxy, and waits for healthy
-- Use the URL printed by the command (e.g. `http://cx-121.myapp.test`) — never use `http://localhost:3000`
+- Use the URL printed by the command (e.g. `http://cx-121.myapp.test`) — always use the allocated URL
 - Use `aigon dev-server logs` to check startup output if anything seems wrong
 - Ask the user to verify
 
@@ -157,6 +162,17 @@ fi
    aigon dev-server open
    ```
 3. Generate a **Manual Testing Checklist**: re-read the spec Acceptance Criteria and write a numbered list of concrete, human-executable steps to verify each one (e.g. "Navigate to /settings → fill in the form → click Save → verify the success message appears"). Present the checklist in your response before stopping.
+
+## Step 4.5: Update documentation if needed
+
+If your changes affect any of the following, update the relevant docs **before committing**:
+
+- **New modules or files** → update Module Map in `CLAUDE.md` and `docs/architecture.md`
+- **New repo structure or external dependencies** → update `docs/architecture.md`
+- **New patterns or conventions agents should follow** → update `CLAUDE.md` and/or `AGENTS.md`
+- **Cross-repo changes (e.g., `@aigon/pro`)** → note what changed in both repos
+
+Documentation ships with the code, not as a follow-up.
 
 ## Step 5: Commit your implementation
 
@@ -189,59 +205,35 @@ Update it with:
 
 **Then commit the log file.**
 
+## Step 6.5: Start the dev server
+
+**You MUST start the dev server before signalling completion.** The evaluator and user need a running preview of your implementation.
+
+Start the dev server and leave it running.
+
 ## Step 7: Signal completion
 
-**THIS IS THE FINAL STEP. YOU MUST COMPLETE IT.**
+**THIS IS THE FINAL STEP. YOU MUST COMPLETE IT. DO NOT SKIP THIS STEP.**
 
-After committing your code (Step 5) and log (Step 6), you MUST signal your status. Run this command now:
+After committing your code (Step 5), log (Step 6), and starting the dev server (Step 6.5), run this command **immediately**:
 
-```bash
-test -f .aigon/auto-submit && echo "AUTO_SUBMIT" || echo "MANUAL"
-```
-
-Then follow the matching section below.
-
----
-
-### AUTO_SUBMIT → run `aigon agent-status submitted` and exit
-
-You are running autonomously. Run this command immediately:
 ```bash
 aigon agent-status submitted
 ```
-This session is complete. Do not suggest follow-up commands.
 
----
+This signals to the dashboard that your work is done. **You must run this command before doing anything else.**
 
-### MANUAL + Drive Mode (branch) → run `aigon agent-status waiting` and stop
+Then tell the user:
 
-You are on a branch in the main repo. Run this command immediately:
-```bash
-aigon agent-status waiting
-```
-Then tell the user: "Implementation complete. Ready for your review."
+> "Implementation submitted. You can review my changes, ask for modifications, or close the feature when ready."
 
-**STOP and WAIT.** Do not proceed until the user responds. Do NOT run feature-close.
+**STAY in the session.** The user may want to review your work and ask for changes. If they do, make the changes, commit, and say "Changes committed." Do NOT run or suggest `feature-close` — that's the user's decision.
+Then tell the user:
 
----
+> "Implementation complete — code is on the branch, ready for review. You can ask me to make changes, or run `/aigon:feature-close <ID>` when satisfied."
 
-### MANUAL + Worktree (Drive worktree or Fleet) → run `aigon agent-status submitted` and stop
-
-You are in a worktree. Run this command immediately:
-```bash
-aigon agent-status submitted
-```
-Then tell the user: "Implementation complete and submitted."
-
-**STOP.** Do NOT run feature-close — that must be done from the main repo.
-
----
-
-**If you are unsure which section applies, run `aigon agent-status waiting` — it is always safe.**
+**STAY in the session.** The user may review and request changes. If they do, make the changes and commit. No need to re-run agent-status.
 
 ## Prompt Suggestion
 
-**IMPORTANT:** End your final response with the suggested next command on its own line. This tells the user what to run next and enables prompt suggestions. Use the actual feature ID:
-
-- **Drive mode:** `/aigon:feature-close <ID>`
-- **Fleet / worktree:** `/aigon:feature-submit`
+End your final response with a brief summary of what was implemented (files changed, approach taken). Do NOT suggest a slash command — the user decides what to do next.

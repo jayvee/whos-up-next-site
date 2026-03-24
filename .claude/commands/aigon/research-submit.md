@@ -1,9 +1,9 @@
 ---
-description: Submit research findings - signal completion for Fleet autopilot
+description: Submit research findings - signal completion for worktree/Fleet research
 ---
 # aigon-research-submit
 
-Signal that your research findings are complete. Used in Fleet mode to let the autopilot monitor know you're done.
+Signal that your research findings are complete. This is the research equivalent of the submit step in the feature lifecycle when you are working from a findings file.
 
 ```bash
 aigon research-submit {{args}} [agent]
@@ -36,14 +36,13 @@ Run the submit command to signal completion:
 aigon research-submit {{args}}
 ```
 
-This updates your findings file's status to `submitted`, which the `research-autopilot` monitor uses to detect completion.
+This updates your findings file's status to `submitted`, which research coordination flows can use to detect completion.
 
 ## After Submitting
 
-**STOP** — do not run any further commands. The user (or autopilot) will:
-- Wait for all agents to submit
-- Run `/aigon:research-synthesize {{args}}` to compare findings
-- Run `/aigon:research-close {{args}}` to complete the research
+**STAY in the session.** The user may want to review your findings and ask follow-up questions.
+
+Do NOT run `aigon research-close` from an agent findings session — the user will choose the next step (`research-eval` or `research-close`) from the main repo.
 
 ## Prompt Suggestion
 

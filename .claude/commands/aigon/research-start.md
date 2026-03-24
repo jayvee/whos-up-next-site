@@ -1,5 +1,5 @@
 ---
-description: Start research <ID> [agents...] - create workspace and begin research (shortcut for research-start)
+description: Start research <ID> [agents...] - create workspace and begin research
 argument-hint: "<ID> [agents...]"
 ---
 # aigon-research-start

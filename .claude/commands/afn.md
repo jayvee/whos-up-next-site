@@ -47,7 +47,7 @@ This assigns an ID and moves the spec from `01-inbox/` to `02-backlog/`. Note th
 ### A3: Setup (Drive mode)
 
 ```bash
-aigon feature-setup <ID>
+aigon feature-start <ID>
 ```
 
 This moves the spec to `03-in-progress/`, creates the branch, and creates the implementation log.
@@ -165,12 +165,10 @@ Implement the feature according to the spec. Commit with conventional commits (`
    ```
 3. Generate a **Manual Testing Checklist**: re-read the spec Acceptance Criteria and write a numbered list of concrete, human-executable steps to verify each one (e.g. "Navigate to /settings → fill in the form → click Save → verify the success message appears"). Present the checklist in your response before stopping.
 
-**Signal that you are waiting for the user:**
+**Signal that implementation is complete:**
 ```bash
-aigon agent-status waiting
+aigon agent-status submitted
 ```
-
-**STOP and WAIT for user confirmation before proceeding** — do NOT continue until the user confirms testing is complete.
 
 ## Step 6: Update the implementation log
 
@@ -185,14 +183,10 @@ Commit the log file.
 
 ## Step 7: STOP — Implementation complete
 
-**CRITICAL: Do NOT proceed to feature-close automatically.**
+Tell the user:
 
-Tell the user: "Implementation complete. Ready for your review."
+> "Implementation complete — code is on the branch, ready for review. You can ask me to make changes, or close the feature when satisfied."
 
-**STOP and WAIT** for the user to:
-- Review the code changes
-- Test the feature themselves
-- Optionally run `/aigon:feature-eval` for code review
-- Approve with `/aigon:feature-close`
+**STAY in the session.** The user may review and request changes. If they do, make the changes and commit. Do NOT run or suggest `feature-close`.
 
 **This implementation session is complete.**

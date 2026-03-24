@@ -25,8 +25,9 @@ docs/specs/
 │   ├── 01-inbox/        # New research ideas
 │   ├── 02-backlog/      # Prioritised research
 │   ├── 03-in-progress/  # Active research
-│   ├── 04-done/         # Completed research
-│   └── 05-paused/       # On hold
+│   ├── 04-in-evaluation/# Comparing agent findings
+│   ├── 05-done/         # Completed research
+│   └── 06-paused/       # On hold
 ├── features/
 │   ├── 01-inbox/        # New feature ideas (feature-description.md)
 │   ├── 02-backlog/      # Prioritised features (feature-NN-description.md)
@@ -47,7 +48,7 @@ docs/specs/
 |---------|-------------|
 | `aigon feature-create <name>` | Create a new feature spec |
 | `aigon feature-prioritise <name>` | Assign ID and move to backlog |
-| `aigon feature-setup <ID> [agents...]` | Setup for solo (no agents) or arena (with agents) |
+| `aigon feature-start <ID> [agents...]` | Setup for solo (no agents) or arena (with agents) |
 | `aigon feature-implement <ID> [--ralph]` | Implement feature; `--ralph` runs autonomous retry loop ([Ralph technique](https://ghuntley.com/ralph/)) |
 | `aigon feature-eval <ID>` | Create evaluation (code review for solo, comparison for arena) |
 | `aigon feature-done <ID> [agent]` | Merge and complete (specify agent in arena mode) |
@@ -62,7 +63,7 @@ docs/specs/
 
 ## Solo Mode Workflow
 
-1. Run `aigon feature-setup <ID>` to create branch and move spec to in-progress
+1. Run `aigon feature-start <ID>` to create branch and move spec to in-progress
 2. Run `aigon feature-implement <ID>` to begin implementation (add `--ralph` for autonomous retry loop)
 3. Read the spec in `./docs/specs/features/03-in-progress/feature-<ID>-*.md`
 4. Implement the feature according to the spec
@@ -73,7 +74,7 @@ docs/specs/
 
 ## Arena Mode Workflow
 
-1. Run `aigon feature-setup <ID> cc gg cx cu` to create worktrees for each agent
+1. Run `aigon feature-start <ID> cc gg cx cu` to create worktrees for each agent
 2. **STOP** - Tell the user to open each worktree in a separate session
 3. In each worktree session:
    - Run `aigon feature-implement <ID>`
