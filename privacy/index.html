@@ -22,7 +22,7 @@
 
     <main class="legal">
         <h1>Privacy Policy</h1>
-        <p class="updated">Last updated: February 18, 2026</p>
+        <p class="updated">Last updated: March 29, 2026</p>
 
         <h2>The Short Version</h2>
         <p>Who's Up Next? is designed with privacy at its core. All data stays on your device. We don't collect, transmit, or store any of your information on external servers. There are no accounts, no cloud sync, and no analytics.</p>
@@ -39,6 +39,14 @@
 
         <h2>Face Recognition</h2>
         <p>Face detection and recognition happen entirely on your device using Apple's Vision framework and an on-device machine learning model. No face images or face data are ever transmitted off your phone. The face data stored locally consists of numerical embeddings (arrays of numbers) that cannot be reverse-engineered back into photos.</p>
+
+        <h2>Face Data Retention</h2>
+        <p>Face data (numerical embeddings and thumbnail images) is retained on your device only for as long as the associated friend profile exists in the app. Face data is not stored indefinitely &mdash; it is permanently deleted when any of the following occur:</p>
+        <ul>
+            <li>You delete a friend from the Crew tab, which immediately removes all of that friend's face embeddings and thumbnail</li>
+            <li>You delete the app, which removes all locally stored data including all face data</li>
+        </ul>
+        <p>Face data is retained for this duration because it is required for the app's core functionality: recognising your friends in real-time so it can determine whose turn it is. Without stored embeddings, the app cannot identify anyone. There is no secondary use, and face data serves no purpose beyond active friend recognition.</p>
 
         <h2>Camera Access</h2>
         <p>The app requests camera access to detect and recognise faces in real-time. Camera frames are processed on-device and are never recorded, stored, or transmitted. You can revoke camera access at any time in iOS Settings.</p>
