@@ -84,26 +84,21 @@ nav {
     line-height: 1.7;
 }
 
-.cta-button {
+.app-store-link {
     display: inline-block;
-    background: #1a1a1a;
-    color: white;
-    padding: 0.9rem 2rem;
-    border-radius: 12px;
     text-decoration: none;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: background 0.2s;
+    transition: opacity 0.2s, transform 0.2s;
 }
 
-.cta-button:hover {
-    background: #333;
+.app-store-link:hover {
+    opacity: 0.85;
+    transform: scale(1.03);
 }
 
-.cta-disabled {
-    background: #999;
-    cursor: default;
-    pointer-events: none;
+.app-store-badge {
+    display: block;
+    width: 180px;
+    height: auto;
 }
 
 /* Screenshots */
